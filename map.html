@@ -5,17 +5,24 @@
     <meta charset="utf-8">
     <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
 
+    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/dojo/1.6/dijit/themes/claro/claro.css">
     <link rel="stylesheet" href="https://js.arcgis.com/4.10/esri/css/main.css">
     <link rel="stylesheet" href="style/mapView.css">
 
     <!-- <script src="http://ajax.googleapis.com/ajax/libs/dojo/1.10.4/dojo/dojo.js" data-dojo-config="async: true"></script> -->
     <script src="https://js.arcgis.com/4.10/"></script>
     <script src="scripts/map.js"></script>
+    <script>
+        dojoConfig = {
+            parseOnLoad: true
+        }
+    </script>
 
     <title>Weather Map</title>
 </head>
 
-<body>
+<body class="claro">
+    <div id="sideBar"></div>
     <div id="mapView"></div>
 </body>
 

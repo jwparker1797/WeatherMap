@@ -1,8 +1,23 @@
 html,
-body,
-#mapView {
+body {
     padding: 0;
     margin: 0;
     height: 100%;
     width: 100%;
+}
+
+#mapView {
+    padding: 0;
+    margin: 0;
+    height: 100%;
+    width: 80%;
+    overflow: hidden
+}
+
+#sideBar {
+    float: left;
+    padding: 0;
+    margin: 0;
+    height: 100%;
+    width: 20%;
 }

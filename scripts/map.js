@@ -9,7 +9,10 @@ require([
     "esri/widgets/LayerList",
     "esri/widgets/Popup",
     "esri/PopupTemplate",
-    "esri/widgets/Legend"
+    "esri/widgets/Legend",
+    "dijit/layout/AccordionContainer",
+    "dijit/layout/ContentPane",
+    "dojo/domReady!"
 ], function(Map,
     MapView,
     Search,
@@ -20,7 +23,9 @@ require([
     LayerList,
     Popup,
     PopupTemplate,
-    Legend) {
+    Legend,
+    AccordionContainer,
+    ContentPane) {
     var map = new Map({
         basemap: "dark-gray"
     });
@@ -58,10 +63,32 @@ require([
     });
     view.ui.add(basemapToggle, "top-left");
 
-    var layerList = new LayerList({
+    var legend = new Legend({
+        // layerInfos: [{
+        //     title: "Current Temperature",
+        //     layer: map.findLayerById("TempLayer")
+        // }],
+        style: {
+            type: "classic",
+            layout: "stack",
+        },
         view: view
     });
-    view.ui.add(layerList, "bottom-left");
+    view.ui.add(legend);
+
+    var layerList = new LayerList({
+        // listItemCreatedFunction: function(event) {
+        //     var item = event.item;
+        //     if (item.layer.type != "group" && !item.layer.sublayers && item.layer.title === legend.layerInfos[0].title) {
+        //         item.panel = {
+        //             content: legend,
+        //             open: false
+        //         };
+        //     }
+        // },
+        view: view
+    });
+    view.ui.add(layerList);
 
     var watchWarnPopup = new Popup({
         autoCloseEnabled: true,
@@ -75,19 +102,6 @@ require([
         content: "Issued: {issuance}<br>Expires: {expiration}<br><a href={url}>More Info</a>"
     });
 
-    var legend = new Legend({
-        layerInfos: {
-            title: "Temperature",
-            layer: currentTempLayer
-        },
-        style: {
-            type: "card",
-            layout: "stack",
-        },
-        view: view
-    });
-    view.ui.add(legend, "bottom-right");
-
     // Layers
     var radarImageryLayer = new ImageryLayer({
         popupEnabled: false,
@@ -99,6 +113,7 @@ require([
 
     var currentTempLayer = new MapImageLayer({
         refreshInterval: 15,
+        id: "TempLayer",
         url: "https://idpgis.ncep.noaa.gov/arcgis/rest/services/NWS_Forecasts_Guidance_Warnings/NDFD_temp/MapServer",
         sublayers: [{
             id: 5,
@@ -135,4 +150,18 @@ require([
         title: "Current Snow Depth"
     });
     map.add(snowDepthLayer);
+
+    // Accordion Container Setup
+    var accordionContainer = new AccordionContainer({ style: "height: 100%" }, "sideBar");
+
+    accordionContainer.addChild(new ContentPane({
+        title: "Layers",
+        content: layerList
+    }));
+
+    accordionContainer.addChild(new ContentPane({
+        title: "Legend",
+        content: legend
+    }));
+    accordionContainer.startup();
 });
