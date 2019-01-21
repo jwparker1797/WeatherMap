@@ -40,6 +40,7 @@ require([
         map: map,
         zoom: 4
     });
+
     // Add default widgets to view
     var searchBar = new Search({
         view: view,
@@ -163,5 +164,39 @@ require([
         title: "Legend",
         content: legend
     }));
+
+    accordionContainer.addChild(new ContentPane({
+        title: "Forecast",
+        content: "Use the search bar to get a forecast for a location."
+    }));
     accordionContainer.startup();
+
+    // Forecasting
+    searchBar.on("search-complete", function(event) {
+        var searchExtentCenter = event.results[0].results[0].extent.center;
+        getForecast(searchExtentCenter.longitude, searchExtentCenter.latitude, event.results[0].results[0].name);
+    });
+
+    var getForecast = function(x, y, place) {
+        var Http = new XMLHttpRequest();
+        var url = "https://api.weather.gov/points/" + y + "," + x + "/forecast";
+        Http.open("GET", url);
+        Http.send();
+        console.log(Http.statusText)
+        Http.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                var forecastData = JSON.parse(Http.responseText);
+                var forecastProperties = forecastData.properties;
+                accordionContainer.getChildren().forEach(function(item) {
+                    if (item.title === "Forecast") {
+                        accordionContainer.selectChild(item, true);
+                        item.domNode.innerHTML = "<h3>" + place + "</h3><br>";
+                        forecastProperties.periods.forEach(function(fp) {
+                            item.domNode.innerHTML += "<img src=" + fp.icon + "><br><b>" + fp.name + "</b>: <p style='font-size:12px'>" + fp.detailedForecast + "</p><br><br>";
+                        })
+                    }
+                });
+            }
+        };
+    };
 });
