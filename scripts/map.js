@@ -26,6 +26,7 @@ require([
     Legend,
     AccordionContainer,
     ContentPane) {
+
     var map = new Map({
         basemap: "dark-gray"
     });
@@ -45,10 +46,7 @@ require([
     var searchBar = new Search({
         view: view,
         resultGraphicEnabled: false,
-        // This does not work
-        // goToOverride: function(viewMap, goToParams) {
-        //     return viewMap.goTo({ center: goToParams.center, zoom: 5 }, goToParams.options);
-        // }
+        popupEnabled: false
     });
     view.ui.add(searchBar, "top-right");
 
@@ -65,10 +63,6 @@ require([
     view.ui.add(basemapToggle, "top-left");
 
     var legend = new Legend({
-        // layerInfos: [{
-        //     title: "Current Temperature",
-        //     layer: map.findLayerById("TempLayer")
-        // }],
         style: {
             type: "classic",
             layout: "stack",
@@ -78,15 +72,6 @@ require([
     view.ui.add(legend);
 
     var layerList = new LayerList({
-        // listItemCreatedFunction: function(event) {
-        //     var item = event.item;
-        //     if (item.layer.type != "group" && !item.layer.sublayers && item.layer.title === legend.layerInfos[0].title) {
-        //         item.panel = {
-        //             content: legend,
-        //             open: false
-        //         };
-        //     }
-        // },
         view: view
     });
     view.ui.add(layerList);
@@ -103,14 +88,21 @@ require([
         content: "Issued: {issuance}<br>Expires: {expiration}<br><a href={url}>More Info</a>"
     });
 
+    // https://developers.arcgis.com/javascript/latest/sample-code/sandbox/index.html?sample=tasks-identify
+    var temperaturePopupTemplate = new PopupTemplate({
+        title: "Temperature",
+        content: "{Raster.ServicePixelValue}"
+    });
+
     // Layers
     var radarImageryLayer = new ImageryLayer({
-        popupEnabled: false,
+        // popupEnabled: false,
         refreshInterval: 15,
         title: "Radar",
+        popupEnabled: true,
+        popupTemplate: temperaturePopupTemplate,
         url: "https://idpgis.ncep.noaa.gov/arcgis/rest/services/radar/radar_base_reflectivity_time/ImageServer"
     });
-    map.add(radarImageryLayer);
 
     var currentTempLayer = new MapImageLayer({
         refreshInterval: 15,
@@ -120,13 +112,13 @@ require([
             id: 5,
             sublayers: [{
                 id: 8,
-                title: "Current Temperature"
+                title: "Current Temperature",
             }],
             title: "Current Temperature"
         }],
-        title: "Temperature"
+        title: "Temperature",
+        visible: false
     });
-    map.add(currentTempLayer, 0);
 
     var watchesWarnings = new MapImageLayer({
         refreshInterval: 15,
@@ -139,7 +131,6 @@ require([
         }],
         title: "Watches/Warnings"
     });
-    map.add(watchesWarnings, 1);
 
     var snowDepthLayer = new MapImageLayer({
         refreshInterval: 15,
@@ -148,12 +139,19 @@ require([
             id: 3,
             title: "Snow Depth"
         }],
-        title: "Current Snow Depth"
+        title: "Current Snow Depth",
+        visible: false
     });
+
     map.add(snowDepthLayer);
+    map.add(currentTempLayer);
+    map.add(watchesWarnings);
+    map.add(radarImageryLayer);
 
     // Accordion Container Setup
-    var accordionContainer = new AccordionContainer({ style: "height: 100%" }, "sideBar");
+    var accordionContainer = new AccordionContainer({
+        style: "height: 100%",
+    }, "sideBar");
 
     accordionContainer.addChild(new ContentPane({
         title: "Layers",
@@ -167,6 +165,7 @@ require([
 
     accordionContainer.addChild(new ContentPane({
         title: "Forecast",
+        id: "ForecastPane",
         content: "Use the search bar to get a forecast for a location."
     }));
     accordionContainer.startup();
@@ -182,20 +181,19 @@ require([
         var url = "https://api.weather.gov/points/" + y + "," + x + "/forecast";
         Http.open("GET", url);
         Http.send();
-        console.log(Http.statusText)
         Http.onreadystatechange = function() {
+            var forecastPane = document.getElementById("ForecastPane");
+
             if (this.readyState == 4 && this.status == 200) {
                 var forecastData = JSON.parse(Http.responseText);
                 var forecastProperties = forecastData.properties;
-                accordionContainer.getChildren().forEach(function(item) {
-                    if (item.title === "Forecast") {
-                        accordionContainer.selectChild(item, true);
-                        item.domNode.innerHTML = "<h3>" + place + "</h3><br>";
-                        forecastProperties.periods.forEach(function(fp) {
-                            item.domNode.innerHTML += "<img src=" + fp.icon + "><br><b>" + fp.name + "</b>: <p style='font-size:12px'>" + fp.detailedForecast + "</p><br><br>";
-                        })
-                    }
+                accordionContainer.selectChild("ForecastPane", true);
+                forecastPane.innerHTML = "<h3>" + place + "</h3><br>";
+                forecastProperties.periods.forEach(function(fp) {
+                    forecastPane.innerHTML += "<img src=" + fp.icon + "><br><b>" + fp.name + "</b>: <p style='font-size:12px'>" + fp.detailedForecast + "</p><br><br>";
                 });
+            } else if (this.readyState == 4 && this.status == 404) {
+                forecastPane.innerHTML = "Location not found.  Forecasts are only available for locations in the United States.";
             }
         };
     };
