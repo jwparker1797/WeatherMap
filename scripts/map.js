@@ -62,14 +62,27 @@ require([
     });
     view.ui.add(basemapToggle, "top-left");
 
-    var legend = new Legend({
-        style: {
-            type: "classic",
-            layout: "stack",
-        },
-        view: view
+    view.when(function() {
+        var legend = new Legend({
+            style: {
+                type: "classic",
+                layout: "stack",
+            },
+            layerInfos: [{
+                layer: currentTempLayer
+            }, {
+                layer: watchesWarnings
+            }, {
+                layer: snowDepthLayer
+            }],
+            view: view
+        });
+        view.ui.add(legend);
+        accordionContainer.addChild(new ContentPane({
+            title: "Legend",
+            content: legend
+        }), 1);
     });
-    view.ui.add(legend);
 
     var layerList = new LayerList({
         view: view
@@ -158,10 +171,10 @@ require([
         content: layerList
     }));
 
-    accordionContainer.addChild(new ContentPane({
-        title: "Legend",
-        content: legend
-    }));
+    // accordionContainer.addChild(new ContentPane({
+    //     title: "Legend",
+    //     content: legend
+    // }));
 
     accordionContainer.addChild(new ContentPane({
         title: "Forecast",
