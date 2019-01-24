@@ -2,13 +2,13 @@
 
 First things first, check your current weather forecast from  [my map](https://jwparker1797.github.io/WeatherMap/map.html).  
 
-As you will find, there are a few layers that show some interesting weather data including: radar, current temperatures, weather watches and warnings, and a current snow depth layer.  I have also added a forecast ability by searching for a location using the search bar.
+As you will find, there are a few layers that show interesting weather data including: radar, current temperatures, weather watches and warnings, and a current snow depth.  I have also added a forecast tool that can be used by putting your location in the search bar.
 
 Below I will outline some of the code I used to accomplish this web map.
 
 ## Layers
 
-Before making the app, I went to the NWS (National Weather Service) GIS service enpoints and found the layers (and URL's) I wanted to use.  An example of how I added one of the layers is shown below.
+Before making the app, I went to the NWS (National Weather Service) GIS service endpoints and found the layers (and URL's) I wanted to use.  An example of how I added one of the layers is shown below.
 
 ```javascript
 var watchesWarnings = new MapImageLayer({
@@ -28,9 +28,9 @@ map.add(watchesWarnings);
 
 ## Widgets
 
-Widgets are a crucial element of web maps.  For this weather map I included a bunch of great widgets.  
+Widgets are a crucial element of web maps.  For this weather map, I included a bunch of great widgets.  
 
-The widgets placed on the map include a handful of default ArcGIS API widgets like zoom, a basemap toggle, a fullscreen button, and a search bar that I use to get a location to send to the NWS API to pull a forecast.
+The widgets placed on the map include a handful of default ArcGIS API widgets like zoom, a basemap toggle, a fullscreen button, and a search bar used to get a location that is then sent to the NWS API which pulls a forecast.
 
 There are a few widgets placed in the accordian menu on the left side of the app that include a layer list (with visibility switches), a legend, and my custom forecast widget.
 
@@ -72,7 +72,7 @@ Below you will see the code for the search bar widget and how it interacts with 
     };
 ```
 
-If you have had a chance to try out the map, you may have noticed there are popups.  Popups are actually a widget as well, and can include custom information by using a popup template.  Below you will see how I create popups for the watches/warnings layer.
+If you have had a chance to try out the map, you may have noticed there are pop-ups.  Pop-ups are actually a widget, and can include custom information by using a pop-up template.  Below you will see how I create pop-ups for the watches/warnings layer.
 
 ```javascript
     var watchWarnPopupTemplate = new PopupTemplate({
@@ -95,7 +95,7 @@ If you have had a chance to try out the map, you may have noticed there are popu
 
 ## Side Menu
 
-In the previous example, you may have noticed I was referecning an accordian container.  This is menu that acts like a slinky and it comes directly from dojo (dijit to be exact).  Inside the accordian container there are content panes which are just div's, so these can contain anything a normal div would, like widgets!  Below you can see how I created the container menu and content panes.
+In the previous example, you may have noticed I was referencing an accordian container.  This is a menu that acts like a slinky and it comes directly from dojo (dijit to be exact).  Inside the accordian container, there are content panes which are just div's, so these can contain anything a normal div would, like widgets!  Below you can see how I created the container menu and content panes.
 
 ```javascript
     var accordionContainer = new AccordionContainer({
