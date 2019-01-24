@@ -171,11 +171,6 @@ require([
         content: layerList
     }));
 
-    // accordionContainer.addChild(new ContentPane({
-    //     title: "Legend",
-    //     content: legend
-    // }));
-
     accordionContainer.addChild(new ContentPane({
         title: "Forecast",
         id: "ForecastPane",
